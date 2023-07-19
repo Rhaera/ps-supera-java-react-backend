@@ -4,7 +4,6 @@ CREATE TABLE conta
     nome_responsavel VARCHAR(50) NOT NULL
 );
 
-
 CREATE TABLE transferencia
 (
     id IDENTITY NOT NULL PRIMARY KEY,

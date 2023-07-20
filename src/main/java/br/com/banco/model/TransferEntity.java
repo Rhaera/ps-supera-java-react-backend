@@ -9,6 +9,7 @@ import javax.persistence.Id;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity(name = "transferencia")
 @AllArgsConstructor
@@ -37,7 +38,7 @@ public class TransferEntity {
     private TransferTypes type;
 
     @Column(name = "nome_operador_transacao", table = "transferencia", length = 50)
-    private String transferRecipient;
+    private String transferOrigin;
 
     @NonNull
     @Column(name = "conta_id", table = "transferencia")
@@ -47,5 +48,23 @@ public class TransferEntity {
         DEPOSITO,
         SAQUE,
         TRANSFERENCIA
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!(obj instanceof TransferEntity))
+            return false;
+        TransferEntity entityObj = (TransferEntity) obj;
+        return Objects.equals(this.transferId, entityObj.transferId) && this.dateOfTransferOccurrence == entityObj.dateOfTransferOccurrence;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (31 * ((Objects.nonNull(transferId) ?
+            (transferId << 5) - transferId :
+            (dateOfTransferOccurrence.hashCode() << 5) - dateOfTransferOccurrence.hashCode()) *
+            Short.hashCode((short) dateOfTransferOccurrence.toEpochMilli())) * Short.hashCode((amountTransferred.shortValue())));
     }
 }

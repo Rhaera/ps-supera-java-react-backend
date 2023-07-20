@@ -1,5 +1,7 @@
 package br.com.banco.model;
 
+import br.com.banco.model.dto.AccountDto;
+
 import lombok.*;
 
 import javax.persistence.Column;
@@ -22,4 +24,8 @@ public class BankAccount {
     @NonNull
     @Column(name = "nome_responsavel", nullable = false, table = "conta", length = 50)
     private String accountOwnerName;
+
+    public AccountDto toDto() {
+        return new AccountDto(accountOwnerName);
+    }
 }

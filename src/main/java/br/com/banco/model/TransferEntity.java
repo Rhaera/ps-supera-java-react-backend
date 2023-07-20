@@ -1,5 +1,6 @@
 package br.com.banco.model;
 
+import br.com.banco.model.dto.TransferEntityDto;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -19,7 +20,6 @@ import java.util.Objects;
 @Setter
 @ToString
 public class TransferEntity {
-
     @Id
     @GeneratedValue
     @Column(name = "id", table = "transferencia")
@@ -48,6 +48,10 @@ public class TransferEntity {
         DEPOSITO,
         SAQUE,
         TRANSFERENCIA
+    }
+
+    public TransferEntityDto toDto() {
+        return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, type, transferOrigin, transferAccountId);
     }
 
     @Override

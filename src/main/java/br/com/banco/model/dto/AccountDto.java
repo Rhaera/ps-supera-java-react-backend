@@ -1,19 +1,10 @@
 package br.com.banco.model.dto;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Getter
 public class AccountDto {
-
-    private static final AccountDto singletonAccount = new AccountDto();
-
-    private String name;
-
-    public static AccountDto getInstance(String name) {
-        singletonAccount.name = name;
-        return singletonAccount;
-    }
+    private final String name;
 }

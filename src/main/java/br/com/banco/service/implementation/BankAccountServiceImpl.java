@@ -3,6 +3,7 @@ package br.com.banco.service.implementation;
 import br.com.banco.model.BankAccount;
 import br.com.banco.model.dto.AccountDto;
 import br.com.banco.repository.BankAccountRepository;
+import br.com.banco.repository.TransferEntityRepository;
 import br.com.banco.service.BankAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class BankAccountServiceImpl implements BankAccountService {
 
     private final BankAccountRepository repository;
+    private final TransferEntityRepository transferRepository;
 
     @Override
     public Optional<AccountDto> createNewAccount(BankAccount newAccount) {
@@ -39,6 +41,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     public void deleteAccountById(long id) {
         if (repository.findById(id).isEmpty())
             return;
+        transferRepository.deleteAllAccountTransfers(id);
         repository.deleteById(id);
     }
 }

@@ -4,10 +4,7 @@ import br.com.banco.model.dto.AccountDto;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity(name = "conta")
 @AllArgsConstructor
@@ -16,8 +13,9 @@ import javax.persistence.Id;
 @Getter
 @ToString
 public class BankAccount {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_conta", table = "conta")
     private Long accountId;
 

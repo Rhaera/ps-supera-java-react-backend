@@ -1,12 +1,10 @@
 package br.com.banco.model;
 
 import br.com.banco.model.dto.TransferEntityDto;
+
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -41,7 +39,8 @@ public class TransferEntity {
     private String transferOrigin;
 
     @NonNull
-    @Column(name = "conta_id", table = "transferencia")
+    @ManyToOne(targetEntity = BankAccount.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_conta")
     private Long transferAccountId;
 
     public enum TransferTypes {

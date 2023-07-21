@@ -30,9 +30,9 @@ public class AccountController {
         return service.readAccountById(id);
     }
 
-    @GetMapping(value = "/{name}")
+    @GetMapping(value = "/")
     @ResponseStatus(value = HttpStatus.OK)
-    public Optional<AccountDto> getAccountByName(@PathVariable(value = "name") String name) {
+    public Optional<AccountDto> getAccountByName(@RequestParam(value = "name") String name) {
         return service.readAccountByName(name);
     }
 

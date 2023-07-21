@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,15 +23,25 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public Optional<AccountDto> createNewAccount(BankAccount newAccount) {
-        return repository.findOneByName(newAccount.getAccountOwnerName()).isEmpty() ? Optional.of(repository.save(newAccount).toDto()) : Optional.empty();
+        return Optional.of(repository.save(newAccount).toDto());
     }
     @Override
     public Optional<AccountDto> readAccountById(long id) {
         return repository.findById(id).isPresent() ? Optional.of(repository.findById(id).get().toDto()) : Optional.empty();
     }
     @Override
-    public Optional<AccountDto> readAccountByName(String searchName) {
-        return repository.findOneByName(searchName).isPresent() ? Optional.of(repository.findOneByName(searchName).get().toDto()) : Optional.empty();
+    public List<AccountDto> readAccountsByName(String searchName) {
+        return repository.findAllByName(searchName)
+                .stream()
+                .map(BankAccount::toDto)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<AccountDto> readAllAccounts() {
+        return repository.findAll()
+                .stream()
+                .map(BankAccount::toDto)
+                .collect(Collectors.toList());
     }
     @Override
     public Optional<AccountDto> updateAccount(long existingId, String newName) {

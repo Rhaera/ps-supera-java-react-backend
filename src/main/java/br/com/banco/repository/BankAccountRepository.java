@@ -7,12 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface BankAccountRepository extends JpaRepository<BankAccount, Long> {
 
     @Query(value = "SELECT * FROM conta c WHERE c.nome_responsavel = :queriedName", nativeQuery = true)
-    Optional<BankAccount> findOneByName(@Param(value = "queriedName") String name);
+    List<BankAccount> findAllByName(@Param(value = "queriedName") String name);
 
 }

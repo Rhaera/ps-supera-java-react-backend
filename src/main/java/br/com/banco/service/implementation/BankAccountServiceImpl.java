@@ -5,7 +5,6 @@ import br.com.banco.model.dto.AccountDto;
 import br.com.banco.repository.BankAccountRepository;
 import br.com.banco.service.BankAccountService;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -13,8 +12,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class BankAccountServiceImpl implements BankAccountService {
+
     private final BankAccountRepository repository;
 
     @Override

@@ -5,7 +5,6 @@ import br.com.banco.model.dto.TransferEntityDto;
 import br.com.banco.repository.TransferEntityRepository;
 import br.com.banco.service.TransferService;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -15,9 +14,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class TransferServiceImpl implements TransferService {
     private final TransferEntityRepository repository;
+
     @Override
     public Optional<TransferEntityDto> insertTransfer(TransferEntity newTransfer) {
         return Optional.of(repository.save(newTransfer).toDto());

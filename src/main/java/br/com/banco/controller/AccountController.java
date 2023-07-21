@@ -4,7 +4,6 @@ import br.com.banco.model.BankAccount;
 import br.com.banco.model.dto.AccountDto;
 import br.com.banco.service.BankAccountService;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/api/accounts")
 @CrossOrigin(value = "**")
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class AccountController {
     private final BankAccountService service;
 

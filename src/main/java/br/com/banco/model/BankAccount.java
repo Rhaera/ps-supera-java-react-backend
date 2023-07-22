@@ -11,9 +11,9 @@ import javax.persistence.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Getter
+@Setter
 @ToString
 public class BankAccount {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_conta", table = "conta")

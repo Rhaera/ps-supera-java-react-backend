@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/v1/accounts")
@@ -33,10 +32,11 @@ public class AccountController {
     @PostMapping(value = "")
     @ResponseStatus(value = HttpStatus.CREATED)
     public ResponseEntity<AccountDto> postAccount(@RequestParam(value = "newUser") String name) {
-        Optional<AccountDto> newAccount = service.createNewAccount(new BankAccount(name));
-        return ResponseEntity.created(URI.create("/api/v1/accounts/" + service.readAllAccounts().size()))
-                .body(newAccount.orElseGet(() -> new AccountDto(name)));
+        return service.createNewAccount(new BankAccount(name)).map(accountCreated ->
+            ResponseEntity.created(URI.create("/api/v1/accounts/" + service.readAllAccounts().size())).body(accountCreated)
+        ).orElseGet(() -> ResponseEntity.internalServerError().build());
     }
+
     @ApiOperation(
             value = "Reading And Verifying If The Name Of A Bank Account From Database, Mapped By Path Variable Called \"id\", Exists",
             response = ResponseEntity.class,
@@ -49,6 +49,7 @@ public class AccountController {
             ResponseEntity.notFound().build() :
             ResponseEntity.ok(service.readAccountById(id).get());
     }
+
     @ApiOperation(
             value = "Reading And Verifying All The Bank Accounts From Database Which Have The Same Name Mapped By Request Param Called \"name\"",
             response = ResponseEntity.class,
@@ -61,6 +62,7 @@ public class AccountController {
             ResponseEntity.notFound().build() :
             ResponseEntity.ok(service.readAccountsByName(name));
     }
+
     @ApiOperation(
             value = "Reading And Verifying All The Bank Accounts From Database",
             response = ResponseEntity.class,
@@ -70,6 +72,7 @@ public class AccountController {
     public ResponseEntity<List<AccountDto>> getAllAccounts() {
         return ResponseEntity.ok(service.readAllAccounts());
     }
+
     @ApiOperation(
             value = "Modifying Name Property Of The Bank Account From Database Mapped By Path Variable Called \"id\"",
             response = ResponseEntity.class,
@@ -82,6 +85,7 @@ public class AccountController {
             ResponseEntity.notFound().build() :
             ResponseEntity.ok(service.updateAccount(existingId, newName).orElse(new AccountDto(newName)));
     }
+
     @ApiOperation(
             value = "Deleting The Bank Account From Database Which Have The Same ID Mapped By Path Variable Called \"id\"",
             response = ResponseEntity.class,
@@ -90,8 +94,9 @@ public class AccountController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity<AccountDto> deleteAccount(@PathVariable(value = "id") long existingId) {
-        if (service.readAccountById(existingId).isEmpty())
+        if (service.readAccountById(existingId).isEmpty()) {
             return ResponseEntity.notFound().build();
+        }
         AccountDto existingAccountDto = service.readAccountById(existingId).get();
         service.deleteAccountById(existingId);
         return ResponseEntity.ok(existingAccountDto);

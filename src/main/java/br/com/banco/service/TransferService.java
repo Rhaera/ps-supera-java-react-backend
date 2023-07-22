@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransferService {
+
     @Transactional
     Optional<TransferEntityDto> insertTransfer(TransferEntity newTransfer);
-
     List<TransferEntityDto> listAllByAccountId(long accountId);
-
-    List<TransferEntityDto> listAllByOriginName(String origin);
+    List<TransferEntityDto> listAllByOriginNameAndAccountId(String origin, long accountId);
+    List<TransferEntityDto> listAllTransfers();
 
 }

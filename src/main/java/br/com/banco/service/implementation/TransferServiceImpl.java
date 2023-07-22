@@ -20,7 +20,9 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public Optional<TransferEntityDto> insertTransfer(TransferEntity newTransfer) {
-        return Optional.of(repository.save(newTransfer).toDto());
+        return repository.existsById(newTransfer.getTransferId()) ?
+                Optional.empty() :
+                Optional.of(repository.save(newTransfer).toDto());
     }
     @Override
     public List<TransferEntityDto> listAllByAccountId(long accountId) {
@@ -30,8 +32,16 @@ public class TransferServiceImpl implements TransferService {
                 .collect(Collectors.toList());
     }
     @Override
-    public List<TransferEntityDto> listAllByOriginName(String origin) {
+    public List<TransferEntityDto> listAllByOriginNameAndAccountId(String origin, long accountId) {
         return repository.findAllByOrigin(origin)
+                .stream()
+                .filter(transferEntity -> transferEntity.getTransferAccount().getAccountId() == accountId)
+                .map(TransferEntity::toDto)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<TransferEntityDto> listAllTransfers() {
+        return repository.findAll()
                 .stream()
                 .map(TransferEntity::toDto)
                 .collect(Collectors.toList());

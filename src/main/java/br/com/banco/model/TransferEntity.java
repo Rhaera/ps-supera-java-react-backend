@@ -16,10 +16,10 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class TransferEntity {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", table = "transferencia")
     private Long transferId;
 
@@ -33,24 +33,44 @@ public class TransferEntity {
 
     @NonNull
     @Column(name = "tipo", nullable = false, table = "transferencia", length = 15)
-    private TransferTypes type;
+    private String type;
 
     @Column(name = "nome_operador_transacao", table = "transferencia", length = 50)
     private String transferOrigin;
 
     @NonNull
-    @ManyToOne(targetEntity = BankAccount.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_conta")
-    private Long transferAccountId;
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = BankAccount.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "conta_id", referencedColumnName = "id_conta", nullable = false)
+    private BankAccount transferAccount;
 
     public enum TransferTypes {
-        DEPOSITO,
-        SAQUE,
-        TRANSFERENCIA
+        DEPOSIT("DEPOSITO"),
+        WITHDRAWAL("SAQUE"),
+        TRANSFER("TRANSFERENCIA");
+
+        private final String type;
+
+        TransferTypes(String transferType) {
+            this.type = transferType;
+        }
+
+        @Override
+        public String toString() {
+            return type;
+        }
     }
 
-    public TransferEntityDto toDto() {
-        return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, type, transferOrigin, transferAccountId);
+    public TransferEntityDto toDto() throws IllegalArgumentException {
+        switch (type) {
+            case "DEPOSITO":
+                return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.DEPOSIT, transferOrigin, transferAccount.getAccountId());
+            case "SAQUE":
+                return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.WITHDRAWAL, transferOrigin, transferAccount.getAccountId());
+            case "TRANSFERENCIA":
+                return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.TRANSFER, transferOrigin, transferAccount.getAccountId());
+            default:
+                throw new IllegalArgumentException("FORBIDDEN OPERATION!");
+        }
     }
 
     @Override
@@ -68,6 +88,7 @@ public class TransferEntity {
         return (int) (31 * ((Objects.nonNull(transferId) ?
             (transferId << 5) - transferId :
             (dateOfTransferOccurrence.hashCode() << 5) - dateOfTransferOccurrence.hashCode()) *
-            Short.hashCode((short) dateOfTransferOccurrence.toEpochMilli())) * Short.hashCode((amountTransferred.shortValue())));
+            Short.hashCode((short) dateOfTransferOccurrence.toEpochMilli())) *
+            Short.hashCode((amountTransferred.shortValue())));
     }
 }

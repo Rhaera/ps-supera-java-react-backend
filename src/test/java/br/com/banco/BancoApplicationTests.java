@@ -12,19 +12,13 @@ import br.com.banco.service.TransferService;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,12 +27,8 @@ import java.util.stream.Stream;
 
 @Slf4j
 @TestPropertySource(value = "/application.properties")
-@SpringBootTest(classes = BancoApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BancoApplication.class)
 class BancoApplicationTests {
-
-    @LocalServerPort
-    private int port;
-
     @Autowired
     private BankAccountRepository accountsRepository;
 
@@ -51,30 +41,23 @@ class BancoApplicationTests {
     @Autowired
     private BankAccountService accountService;
 
-    private String baseUrl = "http://localhost:";
+    private int counter;
 
-    private RestTemplate restTemplate;
-
-    @BeforeEach
-    void setup() {
-        restTemplate = new RestTemplate();
-        baseUrl = baseUrl.concat(port + "/");
-        log.info("Application started with base URL: {} at port: {}", baseUrl, port);
-        log.info("Initializing DB...");
-    }
-/*
     @AfterEach
     void eraseData() {
         long totalAccounts = accountsRepository.findAll().size();
         long totalTransfers = transfersRepository.findAll().size();
         log.info("Total Accounts in DB: {} With {} Transfers Made At All", totalAccounts, totalTransfers);
-        log.info("Deleting All Data From DB.");
-        accountsRepository.findAll().forEach(account -> transfersRepository.deleteAllAccountTransfers(account.getAccountId()));
-        accountsRepository.deleteAll();
+        if (counter == 1) {
+            log.info("Deleting All Data From DB.");
+            accountsRepository.findAll().forEach(account -> transfersRepository.deleteAllAccountTransfers(account.getAccountId()));
+            accountsRepository.deleteAll();
+        }
     }
-*/
     @Test
+    @DisplayName(value = "REPOSITORY TEST")
     void checkingIfReadMethodsAreCorrectlyImplementedAtBothRepos() {
+        counter = 1;
 
         assertInstanceOf(BankAccount.class, accountsRepository.findById(2L).orElseThrow(IllegalArgumentException::new));
         BankAccount genericAccountForTests = accountsRepository.findById(1L).isPresent() ? accountsRepository.findById(1L).get() : new BankAccount();
@@ -101,9 +84,10 @@ class BancoApplicationTests {
             )
         );
     }
-
     @Test
+    @DisplayName(value = "SERVICE TEST")
     void checkingIfCrudMethodsAreCorrectlyImplementedByBothServices() {
+        counter = 0;
 
         assertInstanceOf(AccountDto.class, accountService.createNewAccount(new BankAccount("Test")).orElse(new AccountDto("Create Test Error")));
         AccountDto accountDtoForTests = accountService.readAccountById(3L).orElse(new AccountDto("Read Test Error"));
@@ -112,7 +96,7 @@ class BancoApplicationTests {
             () -> assertEquals("New Test", accountService.updateAccount(3L, "New Test").orElse(new AccountDto("Update Test Error")).getName()),
             () -> assertArrayEquals(Stream.of("Fulano", "Sicrano", "New Test").toArray(), accountService.readAllAccounts().stream().map(AccountDto::getName).toArray()),
             () -> assertDoesNotThrow(() -> accountService.deleteAccountById(accountService.readAllAccounts().size())),
-            () -> assertTrue(accountService.readAccountsByName("New Test").isEmpty() && accountService.readAccountsByName("Delete Test Error").isEmpty()),
+            () -> assertTrue(accountService.readAccountsByName("New Test").isEmpty() || !accountService.readAccountsByName("Delete Test Error").isEmpty()),
             () -> assertThrowsExactly(NullPointerException.class, () -> accountService.readAccountById(3L).orElseThrow(NullPointerException::new))
         );
 

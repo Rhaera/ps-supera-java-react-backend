@@ -1,7 +1,7 @@
 package br.com.banco.service;
 
-import br.com.banco.model.BankAccount;
-import br.com.banco.model.dto.AccountDto;
+import br.com.banco.entity.AccountEntity;
+import br.com.banco.dto.AccountDto;
 
 import javax.transaction.Transactional;
 
@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Transactional
-public interface BankAccountService {
-    Optional<AccountDto> createNewAccount(BankAccount newAccount);
+public interface AccountService {
+    Optional<AccountDto> createNewAccount(AccountEntity newAccount);
     Optional<AccountDto> readAccountById(long id);
     List<AccountDto> readAccountsByName(String searchName);
     List<AccountDto> readAllAccounts();
     Optional<AccountDto> updateAccount(long existingId, String newName);
-    void deleteAccountById(long id);
+    Optional<AccountDto> deleteAccountById(long id);
 }

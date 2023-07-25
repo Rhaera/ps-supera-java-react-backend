@@ -1,16 +1,17 @@
 package br.com.banco;
 
-import br.com.banco.model.BankAccount;
-import br.com.banco.model.dto.AccountDto;
+import br.com.banco.entity.AccountEntity;
+import br.com.banco.dto.AccountDto;
 
-import br.com.banco.model.dto.TransferEntityDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -34,8 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 @TestPropertySource(value = "/application.properties")
 @SpringBootTest(classes = BancoApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class BancoApplicationControllerTests {
-
+public class BancoApplicationWebControllerTests {
     @LocalServerPort
     private int port;
 
@@ -78,7 +78,7 @@ public class BancoApplicationControllerTests {
                 new HttpEntity<>(
                         new JSONObject().put("amountTransferred", BigDecimal.valueOf(0.99))
                                 .put("dateOfTransferOccurrence", Instant.now().minusSeconds(5L))
-                                .put("transferAccount", new BankAccount(4L, "Angular"))
+                                .put("transferAccount", new AccountEntity(4L, "Angular"))
                                 .put("transferId", 12L)
                                 .put("transferOrigin", "Fulano")
                                 .put("type", "TRANSFERENCIA")

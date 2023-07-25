@@ -1,8 +1,8 @@
 package br.com.banco.controller;
 
-import br.com.banco.model.BankAccount;
-import br.com.banco.model.dto.AccountDto;
-import br.com.banco.service.BankAccountService;
+import br.com.banco.entity.AccountEntity;
+import br.com.banco.dto.AccountDto;
+import br.com.banco.service.AccountService;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -20,9 +20,7 @@ import java.util.List;
 @CrossOrigin(value = "**")
 @RequiredArgsConstructor
 public class AccountController {
-
-    private final BankAccountService service;
-
+    private final AccountService service;
     @ApiOperation(
             value = "Inserting A New Bank Account Into Database",
             response = ResponseEntity.class,
@@ -32,7 +30,7 @@ public class AccountController {
     @PostMapping(value = "")
     @ResponseStatus(value = HttpStatus.CREATED)
     public ResponseEntity<AccountDto> postAccount(@RequestParam(value = "newUser") String name) {
-        return service.createNewAccount(new BankAccount(name)).map(accountCreated ->
+        return service.createNewAccount(new AccountEntity(name)).map(accountCreated ->
             ResponseEntity.created(URI.create("/api/v1/accounts/" + service.readAllAccounts().size())).body(accountCreated)
         ).orElseGet(() -> ResponseEntity.internalServerError().build());
     }
@@ -94,11 +92,8 @@ public class AccountController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity<AccountDto> deleteAccount(@PathVariable(value = "id") long existingId) {
-        if (service.readAccountById(existingId).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        AccountDto existingAccountDto = service.readAccountById(existingId).get();
-        service.deleteAccountById(existingId);
-        return ResponseEntity.ok(existingAccountDto);
+        return service.readAccountById(existingId).isEmpty() ?
+            ResponseEntity.notFound().build() :
+            ResponseEntity.ok(service.deleteAccountById(existingId).orElseThrow(IllegalStateException::new));
     }
 }

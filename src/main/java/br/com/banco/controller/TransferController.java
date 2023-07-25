@@ -1,7 +1,7 @@
 package br.com.banco.controller;
 
-import br.com.banco.model.TransferEntity;
-import br.com.banco.model.dto.TransferEntityDto;
+import br.com.banco.entity.TransferEntity;
+import br.com.banco.dto.TransferDto;
 import br.com.banco.service.TransferService;
 
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +32,7 @@ public class TransferController {
     )
     @PostMapping(value = "")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public ResponseEntity<TransferEntityDto> postTransfer(@RequestBody @Validated(value = TransferEntity.class) TransferEntity newTransfer) {
+    public ResponseEntity<TransferDto> postTransfer(@RequestBody @Validated(value = TransferEntity.class) TransferEntity newTransfer) {
         try {
             newTransfer.toDto();
         } catch (IllegalArgumentException forbiddenOperation) {
@@ -55,8 +55,8 @@ public class TransferController {
     )
     @GetMapping(value = "/{accountId}")
     @ResponseStatus(value = HttpStatus.OK)
-    public ResponseEntity<List<TransferEntityDto>> getAllByAccountId(@PathVariable(value = "accountId") long accountId) {
-        List<TransferEntityDto> accountTransfers = service.listAllByAccountId(accountId);
+    public ResponseEntity<List<TransferDto>> getAllByAccountId(@PathVariable(value = "accountId") long accountId) {
+        List<TransferDto> accountTransfers = service.listAllByAccountId(accountId);
         return accountTransfers.isEmpty() ?
                 ResponseEntity.notFound().build() :
                 ResponseEntity.ok(accountTransfers);
@@ -68,8 +68,8 @@ public class TransferController {
     )
     @GetMapping(value = "")
     @ResponseStatus(value = HttpStatus.OK)
-    public ResponseEntity<List<TransferEntityDto>> getAllByOriginName(@RequestParam(value = "originName", required = false, defaultValue = "") String origin, @RequestParam(value = "id") long accountId) {
-        List<TransferEntityDto> accountTransfersByOrigin = Objects.nonNull(origin) && !origin.isEmpty() ?
+    public ResponseEntity<List<TransferDto>> getAllByOriginName(@RequestParam(value = "originName", required = false, defaultValue = "") String origin, @RequestParam(value = "id") long accountId) {
+        List<TransferDto> accountTransfersByOrigin = Objects.nonNull(origin) && !origin.isEmpty() ?
                 service.listAllByOriginNameAndAccountId(origin, accountId) :
                 service.listAllByAccountId(accountId);
         return accountTransfersByOrigin.isEmpty() ?
@@ -83,7 +83,7 @@ public class TransferController {
     )
     @GetMapping(value = "/")
     @ResponseStatus(value = HttpStatus.OK)
-    public ResponseEntity<List<TransferEntityDto>> getAllTransfers() {
+    public ResponseEntity<List<TransferDto>> getAllTransfers() {
         return ResponseEntity.ok(service.listAllTransfers());
     }
 }

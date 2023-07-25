@@ -1,6 +1,6 @@
-package br.com.banco.model.dto;
+package br.com.banco.dto;
 
-import br.com.banco.model.TransferEntity.TransferTypes;
+import br.com.banco.entity.TransferEntity.TransferTypes;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.time.Instant;
 
 @AllArgsConstructor
 @Getter
-public class TransferEntityDto {
+public class TransferDto {
     private final Instant dateOfTransferOccurrence;
 
     private final BigDecimal amountTransferred;

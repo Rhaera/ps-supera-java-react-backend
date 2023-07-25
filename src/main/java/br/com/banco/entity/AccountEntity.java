@@ -1,6 +1,6 @@
-package br.com.banco.model;
+package br.com.banco.entity;
 
-import br.com.banco.model.dto.AccountDto;
+import br.com.banco.dto.AccountDto;
 
 import lombok.*;
 
@@ -13,11 +13,11 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-public class BankAccount {
+public class AccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_conta", table = "conta")
-    private Long accountId;
+    private Long id;
 
     @NonNull
     @Column(name = "nome_responsavel", nullable = false, table = "conta", length = 50)

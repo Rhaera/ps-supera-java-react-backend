@@ -1,17 +1,19 @@
 package br.com.banco;
 
-import br.com.banco.model.BankAccount;
-import br.com.banco.model.TransferEntity;
-import br.com.banco.model.TransferEntity.TransferTypes;
-import br.com.banco.model.dto.AccountDto;
-import br.com.banco.model.dto.TransferEntityDto;
-import br.com.banco.repository.BankAccountRepository;
-import br.com.banco.repository.TransferEntityRepository;
-import br.com.banco.service.BankAccountService;
+import br.com.banco.entity.AccountEntity;
+import br.com.banco.entity.TransferEntity;
+import br.com.banco.entity.TransferEntity.TransferTypes;
+import br.com.banco.dto.AccountDto;
+import br.com.banco.dto.TransferDto;
+import br.com.banco.repository.AccountRepository;
+import br.com.banco.repository.TransferRepository;
+import br.com.banco.service.AccountService;
 import br.com.banco.service.TransferService;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,21 +28,19 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @Slf4j
+@FixMethodOrder(value = MethodSorters.NAME_ASCENDING)
 @TestPropertySource(value = "/application.properties")
 @SpringBootTest(classes = BancoApplication.class)
 class BancoApplicationTests {
-    @Autowired
-    private BankAccountRepository accountsRepository;
 
     @Autowired
-    private TransferEntityRepository transfersRepository;
-
+    private AccountRepository accountsRepository;
+    @Autowired
+    private TransferRepository transfersRepository;
     @Autowired
     private TransferService transferService;
-
     @Autowired
-    private BankAccountService accountService;
-
+    private AccountService accountService;
     private int counter;
 
     @AfterEach
@@ -50,7 +50,7 @@ class BancoApplicationTests {
         log.info("Total Accounts in DB: {} With {} Transfers Made At All", totalAccounts, totalTransfers);
         if (counter == 1) {
             log.info("Deleting All Data From DB.");
-            accountsRepository.findAll().forEach(account -> transfersRepository.deleteAllAccountTransfers(account.getAccountId()));
+            accountsRepository.findAll().forEach(account -> transfersRepository.deleteAllAccountTransfers(account.getId()));
             accountsRepository.deleteAll();
         }
     }
@@ -59,12 +59,12 @@ class BancoApplicationTests {
     void checkingIfReadMethodsAreCorrectlyImplementedAtBothRepos() {
         counter = 1;
 
-        assertInstanceOf(BankAccount.class, accountsRepository.findById(2L).orElseThrow(IllegalArgumentException::new));
-        BankAccount genericAccountForTests = accountsRepository.findById(1L).isPresent() ? accountsRepository.findById(1L).get() : new BankAccount();
+        assertInstanceOf(AccountEntity.class, accountsRepository.findById(2L).orElseThrow(IllegalArgumentException::new));
+        AccountEntity genericAccountForTests = accountsRepository.findById(1L).isPresent() ? accountsRepository.findById(1L).get() : new AccountEntity();
         assertAll(
-            () -> assertNotNull(genericAccountForTests.getAccountId()),
-            () -> assertEquals(1L, (long) genericAccountForTests.getAccountId()),
-            () -> assertEquals(new BankAccount("Fulano").getAccountOwnerName(), genericAccountForTests.getAccountOwnerName())
+            () -> assertNotNull(genericAccountForTests.getId()),
+            () -> assertEquals(1L, (long) genericAccountForTests.getId()),
+            () -> assertEquals(new AccountEntity("Fulano").getAccountOwnerName(), genericAccountForTests.getAccountOwnerName())
         );
 
         assertInstanceOf(TransferEntity.class, transfersRepository.findById(5L).orElseThrow(IllegalArgumentException::new));
@@ -78,8 +78,8 @@ class BancoApplicationTests {
             () -> assertEquals("ronnyscley", genericTransferForTests.getTransferOrigin().toLowerCase()),
             () -> assertEquals(
                 "Sicrano",
-                accountsRepository.findById(genericTransferForTests.getTransferAccount().getAccountId())
-                    .map(BankAccount::getAccountOwnerName)
+                accountsRepository.findById(genericTransferForTests.getTransferAccount().getId())
+                    .map(AccountEntity::getAccountOwnerName)
                     .orElseThrow(IllegalArgumentException::new)
             )
         );
@@ -89,7 +89,7 @@ class BancoApplicationTests {
     void checkingIfCrudMethodsAreCorrectlyImplementedByBothServices() {
         counter = 0;
 
-        assertInstanceOf(AccountDto.class, accountService.createNewAccount(new BankAccount("Test")).orElse(new AccountDto("Create Test Error")));
+        assertInstanceOf(AccountDto.class, accountService.createNewAccount(new AccountEntity("Test")).orElse(new AccountDto("Create Test Error")));
         AccountDto accountDtoForTests = accountService.readAccountById(3L).orElse(new AccountDto("Read Test Error"));
         assertAll(
             () -> assertFalse(accountService.readAccountsByName(accountDtoForTests.getName()).isEmpty()),
@@ -102,13 +102,13 @@ class BancoApplicationTests {
 
         assertDoesNotThrow(() ->
             assertInstanceOf(
-                TransferEntityDto.class,
+                TransferDto.class,
                 transferService.insertTransfer(
-                    new TransferEntity(7L, Instant.now(), BigDecimal.valueOf(29.82), "TRANSFERENCIA", "Rhaera", new BankAccount(2L, "Sicrano"))
+                    new TransferEntity(7L, Instant.now(), BigDecimal.valueOf(29.82), "TRANSFERENCIA", "Rhaera", new AccountEntity(2L, "Sicrano"))
                 ).orElseThrow(IllegalArgumentException::new)
             )
         );
-        TransferEntityDto transferDtoForTests = transferService.listAllByAccountId(2L).get(3);
+        TransferDto transferDtoForTests = transferService.listAllByAccountId(2L).get(3);
         assertAll(
             () -> assertFalse(transferService.listAllByOriginNameAndAccountId(transferDtoForTests.getTransferOrigin(), transferDtoForTests.getTransferAccountId()).isEmpty()),
             () -> assertEquals(7L, transferService.listAllTransfers().size()),
@@ -116,7 +116,7 @@ class BancoApplicationTests {
                 Stream.of("Beltrano", "Ronnyscley", "Rhaera").toArray(),
                 transferService.listAllTransfers()
                     .stream()
-                    .map(TransferEntityDto::getTransferOrigin)
+                    .map(TransferDto::getTransferOrigin)
                     .filter(Objects::nonNull)
                     .toArray()
             ),
@@ -125,7 +125,7 @@ class BancoApplicationTests {
                     transferDtoForTests.getDateOfTransferOccurrence(),
                     transferDtoForTests.getAmountTransferred(),
                     transferDtoForTests.getType().toString(),
-                    new BankAccount(transferDtoForTests.getTransferAccountId(), "Sicrano")
+                    new AccountEntity(transferDtoForTests.getTransferAccountId(), "Sicrano")
                 ).toDto()
             ),
             () -> assertNotNull(transferDtoForTests.getType())

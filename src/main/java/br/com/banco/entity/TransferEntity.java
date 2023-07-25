@@ -1,6 +1,6 @@
-package br.com.banco.model;
+package br.com.banco.entity;
 
-import br.com.banco.model.dto.TransferEntityDto;
+import br.com.banco.dto.TransferDto;
 
 import lombok.*;
 
@@ -39,9 +39,9 @@ public class TransferEntity {
     private String transferOrigin;
 
     @NonNull
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = BankAccount.class, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = AccountEntity.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "conta_id", referencedColumnName = "id_conta", nullable = false)
-    private BankAccount transferAccount;
+    private AccountEntity transferAccount;
 
     public enum TransferTypes {
         DEPOSIT("DEPOSITO"),
@@ -60,14 +60,14 @@ public class TransferEntity {
         }
     }
 
-    public TransferEntityDto toDto() throws IllegalArgumentException {
+    public TransferDto toDto() throws IllegalArgumentException {
         switch (type) {
             case "DEPOSITO":
-                return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.DEPOSIT, transferOrigin, transferAccount.getAccountId());
+                return new TransferDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.DEPOSIT, transferOrigin, transferAccount.getId());
             case "SAQUE":
-                return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.WITHDRAWAL, transferOrigin, transferAccount.getAccountId());
+                return new TransferDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.WITHDRAWAL, transferOrigin, transferAccount.getId());
             case "TRANSFERENCIA":
-                return new TransferEntityDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.TRANSFER, transferOrigin, transferAccount.getAccountId());
+                return new TransferDto(dateOfTransferOccurrence, amountTransferred, TransferTypes.TRANSFER, transferOrigin, transferAccount.getId());
             default:
                 throw new IllegalArgumentException("FORBIDDEN OPERATION!");
         }

@@ -1,4 +1,4 @@
-package br.com.banco.model.dto;
+package br.com.banco.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

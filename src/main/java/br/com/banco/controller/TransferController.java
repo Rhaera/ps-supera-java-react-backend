@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/api/v1/transfers")
-@CrossOrigin(value = "**")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class TransferController {
     private final TransferService service;
